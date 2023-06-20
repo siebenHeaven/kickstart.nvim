@@ -60,6 +60,29 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+-- Semantic highlighting stuff
+local links = {
+  ['@lsp.type.comment.c'] = '@comment.c',
+  ['@lsp.type.namespace'] = '@namespace',
+  ['@lsp.type.type'] = '@type',
+  ['@lsp.type.class'] = '@type',
+  ['@lsp.type.enum'] = '@type',
+  ['@lsp.type.interface'] = '@type',
+  ['@lsp.type.struct'] = '@structure',
+  ['@lsp.type.parameter'] = '@parameter',
+  ['@lsp.type.variable'] = '@variable',
+  ['@lsp.type.property'] = '@property',
+  ['@lsp.type.enumMember'] = '@constant',
+  ['@lsp.type.function'] = '@function',
+  ['@lsp.type.method'] = '@method',
+  ['@lsp.type.macro'] = '@macro',
+  ['@lsp.type.decorator'] = '@function',
+}
+
+for newgroup, oldgroup in pairs(links) do
+  vim.api.nvim_set_hl(0, newgroup, { link = oldgroup, default = true})
+end
+
 -- [[ Configure plugins ]]
 -- NOTE: Here is where you install your plugins.
 --  You can configure plugins using the `config` key.
@@ -200,17 +223,14 @@ require('lazy').setup({
     },
   },
 
-  {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+  { -- Theme inspired by Atom
+    -- 'navarasu/onedark.nvim',
+    "catppuccin/nvim",
+    name = "catppuccin",
     priority = 1000,
     lazy = false,
     config = function()
-      require('onedark').setup {
-        -- Set a style preset. 'dark' is default.
-        style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
-      }
-      require('onedark').load()
+      vim.cmd.colorscheme 'catppuccin-mocha'
     end,
   },
 
@@ -586,10 +606,10 @@ require('mason-lspconfig').setup()
 --  If you want to override the default filetypes that your language server will attach to you can
 --  define the property 'filetypes' to the map in question.
 local servers = {
-  -- clangd = {},
+  clangd = {},
   -- gopls = {},
   -- pyright = {},
-  -- rust_analyzer = {},
+  rust_analyzer = { check = { command = "clippy" }},
   -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
@@ -679,6 +699,14 @@ cmp.setup {
     { name = 'path' },
   },
 }
+
+vim.diagnostic.config({
+  virtual_text = false
+})
+
+-- Show line diagnostics automatically in hover window
+vim.o.updatetime = 250
+vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
