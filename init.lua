@@ -646,6 +646,14 @@ mason_lspconfig.setup_handlers {
       filetypes = (servers[server_name] or {}).filetypes,
     }
   end,
+  ["clangd"] = function()
+    require('lspconfig')["clangd"].setup {
+      capabilities = capabilities,
+      on_attach = on_attach,
+      settings = servers["clangd"],
+      cmd = { "clangd", "--background-index", "--header-insertion=never", "--clang-tidy"}
+    }
+  end,
 }
 
 -- [[ Configure nvim-cmp ]]
