@@ -307,6 +307,15 @@ require('lazy').setup({
   -- { import = 'custom.plugins' },
   {
     'simrat39/rust-tools.nvim',
+  },
+  {
+    'stevearc/aerial.nvim',
+    opts = {},
+    -- Optional dependencies
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-tree/nvim-web-devicons"
+    },
   }
 }, {
 })
@@ -378,6 +387,9 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = highlight_group,
   pattern = '*',
 })
+
+-- [[ Configure TagBar mappings ]]
+vim.keymap.set("n", "<leader>tb", "<cmd>AerialToggle!<CR>", {desc = '[T]oggle Tag[B]ar'})
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
