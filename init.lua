@@ -80,7 +80,7 @@ local links = {
 }
 
 for newgroup, oldgroup in pairs(links) do
-  vim.api.nvim_set_hl(0, newgroup, { link = oldgroup, default = true})
+  vim.api.nvim_set_hl(0, newgroup, { link = oldgroup, default = true })
 end
 
 -- [[ Configure plugins ]]
@@ -150,7 +150,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim', opts = {} },
+  { 'folke/which-key.nvim',  opts = {} },
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -226,8 +226,7 @@ require('lazy').setup({
     },
   },
 
-  { -- Theme inspired by Atom
-    -- 'navarasu/onedark.nvim',
+  {
     "catppuccin/nvim",
     name = "catppuccin",
     priority = 1000,
@@ -306,7 +305,11 @@ require('lazy').setup({
   --
   --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
   -- { import = 'custom.plugins' },
-}, {})
+  {
+    'simrat39/rust-tools.nvim',
+  }
+}, {
+})
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -611,11 +614,13 @@ require('mason-lspconfig').setup()
 --
 --  If you want to override the default filetypes that your language server will attach to you can
 --  define the property 'filetypes' to the map in question.
+
 local servers = {
   clangd = {},
   -- gopls = {},
   -- pyright = {},
-  rust_analyzer = { check = { command = "clippy" }},
+  rust_analyzer = {},
+  taplo = {},
   -- tsserver = {},
   -- html = { filetypes = { 'html', 'twig', 'hbs'} },
 
@@ -624,7 +629,7 @@ local servers = {
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
       -- NOTE: toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-      -- diagnostics = { disable = { 'missing-fields' } },
+      diagnostics = { disable = { 'missing-fields' } },
     },
   },
 }
@@ -657,8 +662,31 @@ mason_lspconfig.setup_handlers {
       capabilities = capabilities,
       on_attach = on_attach,
       settings = servers["clangd"],
-      cmd = { "clangd", "--background-index", "--header-insertion=never", "--clang-tidy"}
+      cmd = { "clangd", "--background-index", "--header-insertion=never", "--clang-tidy" }
     }
+  end,
+  ["rust_analyzer"] = function()
+    require("rust-tools").setup({
+      server = {
+        on_attach = function(client, bufnr)
+          on_attach(client, bufnr)
+          vim.keymap.set("n", "<C-space>", require("rust-tools").hover_actions.hover_actions, { buffer = bufnr, desc = "LSP: Hover Actions" })
+        end,
+        capabilities = capabilities,
+        settings = {
+          ["rust-analyzer"] = {
+            checkOnSave = {
+              command = "clippy",
+            },
+          },
+        },
+      },
+      tools = {
+        hover_actions = {
+          auto_focus = true,
+        },
+      },
+    })
   end,
 }
 
@@ -721,6 +749,9 @@ vim.diagnostic.config({
 -- Show line diagnostics automatically in hover window
 vim.o.updatetime = 250
 vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
+
+vim.opt.shell = "bash"
+vim.opt.shellcmdflag = "-c"
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
