@@ -111,7 +111,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim', opts = {} },
+      { 'j-hui/fidget.nvim',       opts = {} },
 
       -- Additional lua configuration, makes nvim stuff amazing!
       'folke/neodev.nvim',
@@ -235,7 +235,11 @@ require('lazy').setup({
       vim.cmd.colorscheme 'catppuccin-mocha'
     end,
   },
-
+  -- Lua
+  {
+    "olimorris/persisted.nvim",
+    config = true
+  },
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
@@ -316,7 +320,8 @@ require('lazy').setup({
       "nvim-treesitter/nvim-treesitter",
       "nvim-tree/nvim-web-devicons"
     },
-  }
+  },
+  { 'akinsho/toggleterm.nvim', version = "*", config = true },
 }, {
 })
 
@@ -389,7 +394,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 })
 
 -- [[ Configure TagBar mappings ]]
-vim.keymap.set("n", "<leader>tb", "<cmd>AerialToggle!<CR>", {desc = '[T]oggle Tag[B]ar'})
+vim.keymap.set("n", "<leader>ta", "<cmd>AerialToggle!<CR>", { desc = '[T]oggle [A]erial' })
 
 -- [[ Configure Telescope ]]
 -- See `:help telescope` and `:help telescope.setup()`
@@ -406,6 +411,7 @@ require('telescope').setup {
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
+pcall(require('telescope').load_extension, 'persisted')
 
 -- Telescope live_grep in git root
 -- Function to find the git root directory based on the current buffer's path
@@ -682,7 +688,8 @@ mason_lspconfig.setup_handlers {
       server = {
         on_attach = function(client, bufnr)
           on_attach(client, bufnr)
-          vim.keymap.set("n", "<C-space>", require("rust-tools").hover_actions.hover_actions, { buffer = bufnr, desc = "LSP: Hover Actions" })
+          vim.keymap.set("n", "<C-space>", require("rust-tools").hover_actions.hover_actions,
+            { buffer = bufnr, desc = "LSP: Hover Actions" })
         end,
         capabilities = capabilities,
         settings = {
@@ -762,8 +769,16 @@ vim.diagnostic.config({
 vim.o.updatetime = 250
 vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
 
-vim.opt.shell = "bash"
-vim.opt.shellcmdflag = "-c"
+vim.opt.shell = "C:/Program Files/Git/bin/bash.exe"
+vim.opt.shellcmdflag = "-s"
+
+require 'toggleterm'.setup({
+  open_mapping = '<C-`>',
+  start_in_insert = true,
+  direction = 'horizontal',
+})
+
+vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
